@@ -13,7 +13,7 @@ namespace AdventOfCode2022
     {
         public static void Main()
         {
-            OutputHandler.Run(new Day01(), 1);
+            OutputHandler.Run(new Day01(), 2);
         }
     }
 }
