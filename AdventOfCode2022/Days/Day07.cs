@@ -12,7 +12,7 @@ namespace AdventOfCode2022.Days
 {
     public class Day07 : IDays 
     {
-        struct Files
+        public struct Files
         {
             public string Name { get; set; }
             public int Size { get; set; }
@@ -31,14 +31,20 @@ namespace AdventOfCode2022.Days
             Directory prevDirectory = null;
             public int sizecombined = 0;
             List<int> sizes = new List<int>();
+            public Directory()
+            {
+
+            }
 
             public Directory(string name)
             {
                 this.Name = name;
+                this.directories = new List<Directory>();
+                this.files = new List<Files>();
+                this.prevDirectory = new Directory();
             }
-            public Directory(string name, Directory prevDirectory)
+            public Directory(string name, Directory prevDirectory) : this(name)
             {
-                this.Name = name;
                 this.prevDirectory = prevDirectory;
             }
 
@@ -49,60 +55,26 @@ namespace AdventOfCode2022.Days
 
             public void AddData(string name, int size)
             {
-                if (files == null)
-                {
-                    files = new List<Files>();
-                }
                 files.Add(new Files(name, size));
             }
 
             public void AddDirectory(string name)
             {
-                if(directories == null)
-                {
-                    directories = new List<Directory>();
-                }
                 directories.Add(new Directory(name, this));
             }
 
             public int SetFileSizeList()
             {
-                int sum = 0;
-                if (directories != null)
+                foreach (Directory directory in directories)
                 {
-                    foreach (Directory directory in directories)
-                    {
-                        sum += directory.SetFileSizeList();
-                    }
-                }
-                if(files != null && prevDirectory != null)
-                {
-                    int value = sum + files.Sum(f => f.Size);
-                    sizes.Add(value);
-                    sizes.ForEach(x => prevDirectory.sizes.Add(x));
-                    return value;
-                }
-                else
-                {
-                    if (prevDirectory != null)
-                    {
-                        sizes.Add(sum);
-                        sizes.ForEach(x => prevDirectory.sizes.Add(x));
-                    }
-                    else
-                    {
-                        if(files != null)
-                        {
-                            sizecombined = sum + files.Sum(f => f.Size);
-                        }
-                        else
-                        {
-                            sizecombined = sum;
-                        }
-                    }
+                    sizecombined += directory.SetFileSizeList();
                 }
 
-                return sum;
+                sizecombined += files.Sum(f => f.Size);
+                sizes.Add(sizecombined);
+                sizes.ForEach(x => prevDirectory.sizes.Add(x));
+
+                return sizecombined;
             }
 
             public List<int> GetSizes()
@@ -116,68 +88,18 @@ namespace AdventOfCode2022.Days
             }
         }
 
-        public void PartOne()
+        public void CreateDirectory(ref Directory headDirectory, string [] lines)
         {
-            string[] lines = File.ReadAllLines(@"../../../Inputs/input07.txt");
-            Directory headDirectory = new Directory("/");
-            Directory currentDirectory = headDirectory;
-            foreach (string line in lines)
-            {
-                if(line.StartsWith("$ cd"))
-                {
-                    string dir = line.Remove(0, 5);
-                    if (dir != "/")
-                    {
-                        if (dir == "..")
-                            currentDirectory = currentDirectory.GetPrevDirectory();
-                        else
-                        {
-                            currentDirectory = currentDirectory.getDirectory(line.Remove(0, 5));
-                        }
-                        
-                    }
-                }
-                else if(line.StartsWith("$ ls"))
-                {
-                    //ignore
-                }
-                else if(line.StartsWith("dir"))
-                {
-                    currentDirectory.AddDirectory(line.Remove(0, 4));
-                }
-                else
-                {
-                    string[] file = line.Split(" ");
-                    currentDirectory.AddData(file[1], Int32.Parse(file[0]));
-                }
-            }
-            headDirectory.SetFileSizeList();
-            int result = headDirectory.GetSizes().Where(x => x <= 100000).Sum();
-            Console.WriteLine($"Result: {result}");
-        }
-
-        public void PartTwo()
-        {
-            const int SPACE = 70000000;
-            const int UPDATESPACE = 30000000;
-            string[] lines = File.ReadAllLines(@"../../../Inputs/input07.txt");
-            Directory headDirectory = new Directory("/");
             Directory currentDirectory = headDirectory;
             foreach (string line in lines)
             {
                 if (line.StartsWith("$ cd"))
                 {
                     string dir = line.Remove(0, 5);
-                    if (dir != "/")
-                    {
-                        if (dir == "..")
-                            currentDirectory = currentDirectory.GetPrevDirectory();
-                        else
-                        {
-                            currentDirectory = currentDirectory.getDirectory(line.Remove(0, 5));
-                        }
-
-                    }
+                    if (dir == "..")
+                        currentDirectory = currentDirectory.GetPrevDirectory();
+                    else if (dir != "/")
+                        currentDirectory = currentDirectory.getDirectory(dir);
                 }
                 else if (line.StartsWith("$ ls"))
                 {
@@ -193,6 +115,26 @@ namespace AdventOfCode2022.Days
                     currentDirectory.AddData(file[1], Int32.Parse(file[0]));
                 }
             }
+        }
+
+        public void PartOne()
+        {
+            string[] lines = File.ReadAllLines(@"../../../Inputs/input07.txt");
+            Directory headDirectory = new Directory("/");
+            CreateDirectory(ref headDirectory, lines);
+
+            headDirectory.SetFileSizeList();
+            int result = headDirectory.GetSizes().Where(x => x <= 100000).Sum();
+            Console.WriteLine($"Result: {result}");
+        }
+
+        public void PartTwo()
+        {
+            const int SPACE = 70000000;
+            const int UPDATESPACE = 30000000;
+            string[] lines = File.ReadAllLines(@"../../../Inputs/input07.txt");
+            Directory headDirectory = new Directory("/");
+            CreateDirectory(ref headDirectory, lines);
 
             headDirectory.SetFileSizeList();
             int freeSpace = SPACE - headDirectory.sizecombined;
