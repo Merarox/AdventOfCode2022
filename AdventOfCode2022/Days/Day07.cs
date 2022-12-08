@@ -30,7 +30,7 @@ namespace AdventOfCode2022.Days
             List<Files> files = null;
             Directory prevDirectory = null;
             public int sizecombined = 0;
-            List<int> sizes = new List<int>();
+            public static List<int> sizes = new List<int>();
             public Directory()
             {
 
@@ -72,7 +72,6 @@ namespace AdventOfCode2022.Days
 
                 sizecombined += files.Sum(f => f.Size);
                 sizes.Add(sizecombined);
-                sizes.ForEach(x => prevDirectory.sizes.Add(x));
 
                 return sizecombined;
             }
