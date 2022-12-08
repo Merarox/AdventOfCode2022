@@ -63,46 +63,58 @@ namespace AdventOfCode2022.Days
         public int CalcScenicScore(int[,] trees, int y, int x)
         {
             int result = 1;
+            int number = 0;
 
             //Check Row Left
             for (int i = x - 1; i >= 0; i--)
             {
+                number++;
                 if (trees[y, x] <= trees[y, i])
                 {
-                    result *= Math.Abs(x - i);
                     break;
                 }
             }
+
+            result *= number;
+            number = 0;
 
             //Check Row Right
             for (int i = x + 1; i < trees.GetLength(1); i++)
             {
+                number++;
                 if (trees[y, x] <= trees[y, i])
                 {
-                    result *= Math.Abs(x - i);
                     break;
                 }
             }
+
+            result *= number;
+            number = 0;
 
             //Check Column Top
             for (int i = y - 1; i >= 0; i--)
             {
+                number++;
                 if (trees[y, x] <= trees[i, x])
                 {
-                    result *= Math.Abs(y - i);
                     break;
                 }
             }
 
+            result *= number;
+            number = 0;
+
             //Check Column Bottom
             for (int i = y + 1; i < trees.GetLength(0); i++)
             {
+                number++;
                 if (trees[y, x] <= trees[i, x])
                 {
-                    result *= Math.Abs(y - i);
                     break;
                 }
             }
+
+            result *= number;
 
             return result;
         }
@@ -144,7 +156,7 @@ namespace AdventOfCode2022.Days
 
         public void PartTwo()
         {
-            string[] lines = File.ReadAllLines(@"../../../Inputs/input08-test.txt");
+            string[] lines = File.ReadAllLines(@"../../../Inputs/input08.txt");
             int[,] trees = new int[lines.Count(), lines[0].Length];
             int scenicScore = 0;
 
