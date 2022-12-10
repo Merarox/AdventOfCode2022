@@ -96,7 +96,6 @@ namespace AdventOfCode2022.Days
                 //Tail Row Check
                 else if (Math.Abs(ropes[element - 1].X - ropes[element].X) > 1)
                 {
-
                     int newX = ropes[element - 1].X > ropes[element].X ? ropes[element].X + 1 : ropes[element].X - 1;
                     ropes[element] = new Position(ropes[element].Y, newX);
                     if (element == ropes.Count - 1)
